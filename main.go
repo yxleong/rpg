@@ -101,19 +101,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			// 			g.tilemapImage.SubImage(image.Rect(srcX, srcY, srcX+16, srcY+16)).(*ebiten.Image),
 			// 			&opts,
 			// 		)
-			// 		opts.GeoM.Reset()
+			opts.GeoM.Reset()
 		}
 	}
 
-	// opts.GeoM.Translate(g.player.X, g.player.Y)
-	// opts.GeoM.Translate(g.cam.X, g.cam.Y)
+	opts.GeoM.Translate(g.player.X, g.player.Y)
+	opts.GeoM.Translate(g.cam.X, g.cam.Y)
 
-	// screen.DrawImage(
-	// 	g.player.Img.SubImage(
-	// 		image.Rect(0, 0, 16, 16),
-	// 	).(*ebiten.Image),
-	// 	&opts,
-	// )
+	screen.DrawImage(
+		g.player.Img.SubImage(
+			image.Rect(0, 0, 16, 16),
+		).(*ebiten.Image),
+		&opts,
+	)
 
 	opts.GeoM.Reset()
 
