@@ -153,27 +153,27 @@ func main() {
 	ebiten.SetWindowTitle("Hello, World")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	playerImage, _, err := ebitenutil.NewImageFromFile("assests/images/ninja.png")
+	playerImage, _, err := ebitenutil.NewImageFromFile("assets/images/ninja.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	skeletonImage, _, err := ebitenutil.NewImageFromFile("assests/images/skeleton.png")
+	skeletonImage, _, err := ebitenutil.NewImageFromFile("assets/images/skeleton.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	potionImage, _, err := ebitenutil.NewImageFromFile("assests/images/potion.png")
+	potionImage, _, err := ebitenutil.NewImageFromFile("assets/images/potion.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tilemapImage, _, err := ebitenutil.NewImageFromFile("assests/images/TilesetFloor.png")
+	tilemapImage, _, err := ebitenutil.NewImageFromFile("assets/images/TilesetFloor.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tilemapJSON, err := NewTileMapJSON("assests/maps/spawn.json")
+	tilemapJSON, err := NewTileMapJSON("assets/maps/spawn.json")
 	if err != nil {
 		log.Fatal(err)
 	}

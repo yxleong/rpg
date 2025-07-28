@@ -23,7 +23,7 @@ func (t *TilemapJSON) GenTilesets() ([]Tileset, error) {
 	tilesets := make([]Tileset, 0)
 
 	for _, tilesetData := range t.Tilesets {
-		tilesetPath := path.Join("assests/maps/", tilesetData["source"].(string))
+		tilesetPath := path.Join("assets/maps/", tilesetData["source"].(string))
 		tileset, err := NewTileset(tilesetPath, int(tilesetData["firstgid"].(float64)))
 		if err != nil {
 			return nil, err

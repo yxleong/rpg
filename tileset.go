@@ -83,7 +83,7 @@ func NewTileset(path string, gid int) (Tileset, error) {
 			tileJSONPath = strings.ReplaceAll(tileJSONPath, "\\", "/")
 			tileJSONPath = strings.TrimPrefix(tileJSONPath, "../")
 			tileJSONPath = strings.TrimPrefix(tileJSONPath, "../")
-			tileJSONPath = filepath.Join("assests/", tileJSONPath)
+			tileJSONPath = filepath.Join("assets/", tileJSONPath)
 
 			img, _, err := ebitenutil.NewImageFromFile(tileJSONPath)
 			if err != nil {
@@ -108,7 +108,7 @@ func NewTileset(path string, gid int) (Tileset, error) {
 	tileJSONPath = strings.ReplaceAll(tileJSONPath, "\\", "/")
 	tileJSONPath = strings.TrimPrefix(tileJSONPath, "../")
 	tileJSONPath = strings.TrimPrefix(tileJSONPath, "../")
-	tileJSONPath = filepath.Join("assests/", tileJSONPath)
+	tileJSONPath = filepath.Join("assets/", tileJSONPath)
 
 	img, _, err := ebitenutil.NewImageFromFile(tileJSONPath)
 	if err != nil {
