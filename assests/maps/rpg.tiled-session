@@ -7,6 +7,12 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "tilesets/TilesetFloor.tsx": {
+            "dynamicWrapping": false
+        },
+        "tilesets/buildings.tsj": {
+            "dynamicWrapping": true
+        }
     },
     "last.imagePath": "/Users/yxleong/Documents/github-repository/rpg/assests/images",
     "map.height": 80,
@@ -19,9 +25,10 @@
     "project": "rpg.tiled-project",
     "recentFiles": [
     ],
-    "tileset.lastUsedFormat": "tsx",
+    "tileset.lastUsedFormat": "json",
     "tileset.tileSize": {
         "height": 16,
         "width": 16
-    }
+    },
+    "tileset.type": 1
 }

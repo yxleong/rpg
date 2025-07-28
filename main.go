@@ -15,7 +15,8 @@ type Game struct {
 	player       *entities.Player
 	enemies      []*entities.Enemy
 	potions      []*entities.Potion
-	titlemapJSON *TileMapJSON
+	titlemapJSON *TilemapJSON
+	tilesets     []Tileset
 	tilemapImage *ebiten.Image
 	cam          *Camera
 }
@@ -73,34 +74,46 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	opts := ebiten.DrawImageOptions{}
 
-	for _, layer := range g.titlemapJSON.Layers {
+	for layerIndex, layer := range g.titlemapJSON.Layers {
 		for index, id := range layer.Data {
+
+			if id == 0 {
+				continue
+			}
+
 			x := (index % layer.Width) * 16
 			y := (index / layer.Width) * 16
 
-			srcX := (id - 1) % 22 * 16
-			srcY := (id - 1) / 22 * 16
+			img := g.tilesets[layerIndex].Img(id)
+
+			// 		srcX := (id - 1) % 22 * 16
+			// 		srcY := (id - 1) / 22 * 16
 
 			opts.GeoM.Translate(float64(x), float64(y))
+
+			opts.GeoM.Translate(0.0, -(float64(img.Bounds().Dy()) + 16))
+
 			opts.GeoM.Translate(g.cam.X, g.cam.Y)
 
-			screen.DrawImage(
-				g.tilemapImage.SubImage(image.Rect(srcX, srcY, srcX+16, srcY+16)).(*ebiten.Image),
-				&opts,
-			)
-			opts.GeoM.Reset()
+			screen.DrawImage(img, &opts)
+
+			// 		screen.DrawImage(
+			// 			g.tilemapImage.SubImage(image.Rect(srcX, srcY, srcX+16, srcY+16)).(*ebiten.Image),
+			// 			&opts,
+			// 		)
+			// 		opts.GeoM.Reset()
 		}
 	}
 
-	opts.GeoM.Translate(g.player.X, g.player.Y)
-	opts.GeoM.Translate(g.cam.X, g.cam.Y)
+	// opts.GeoM.Translate(g.player.X, g.player.Y)
+	// opts.GeoM.Translate(g.cam.X, g.cam.Y)
 
-	screen.DrawImage(
-		g.player.Img.SubImage(
-			image.Rect(0, 0, 16, 16),
-		).(*ebiten.Image),
-		&opts,
-	)
+	// screen.DrawImage(
+	// 	g.player.Img.SubImage(
+	// 		image.Rect(0, 0, 16, 16),
+	// 	).(*ebiten.Image),
+	// 	&opts,
+	// )
 
 	opts.GeoM.Reset()
 
@@ -165,6 +178,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	tilesets, err := tilemapJSON.GenTilesets()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	game := Game{
 		player: &entities.Player{
 			Sprite: &entities.Sprite{
@@ -204,6 +222,7 @@ func main() {
 		},
 		titlemapJSON: tilemapJSON,
 		tilemapImage: tilemapImage,
+		tilesets:     tilesets,
 		cam:          NewCamera(0.0, 0.0),
 	}
 
