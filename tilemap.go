@@ -33,7 +33,7 @@ func (t *TilemapJSON) GenTilesets() ([]Tileset, error) {
 	return tilesets, nil
 }
 
-func NewTileMapJSON(filepath string) (*TilemapJSON, error) {
+func NewTilemapJSON(filepath string) (*TilemapJSON, error) {
 	contents, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, err
