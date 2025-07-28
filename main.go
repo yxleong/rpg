@@ -15,7 +15,7 @@ type Game struct {
 	player       *entities.Player
 	enemies      []*entities.Enemy
 	potions      []*entities.Potion
-	titlemapJSON *TilemapJSON
+	tilemapJSON  *TilemapJSON
 	tilesets     []Tileset
 	tilemapImage *ebiten.Image
 	cam          *Camera
@@ -59,8 +59,8 @@ func (g *Game) Update() error {
 
 	g.cam.FollowsPlayer(g.player.X+8, g.player.Y+8, 320, 240)
 	g.cam.Constrain(
-		float64(g.titlemapJSON.Layers[0].Width)*16.0,
-		float64(g.titlemapJSON.Layers[0].Height)*16.0,
+		float64(g.tilemapJSON.Layers[0].Width)*16.0,
+		float64(g.tilemapJSON.Layers[0].Height)*16.0,
 		320,
 		240,
 	)
@@ -74,7 +74,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	opts := ebiten.DrawImageOptions{}
 
-	for layerIndex, layer := range g.titlemapJSON.Layers {
+	for layerIndex, layer := range g.tilemapJSON.Layers {
 		for index, id := range layer.Data {
 
 			if id == 0 {
@@ -220,7 +220,7 @@ func main() {
 				AmtHeal: 1.0,
 			},
 		},
-		titlemapJSON: tilemapJSON,
+		tilemapJSON:  tilemapJSON,
 		tilemapImage: tilemapImage,
 		tilesets:     tilesets,
 		cam:          NewCamera(0.0, 0.0),
