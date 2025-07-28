@@ -17,7 +17,6 @@ type Tileset interface {
 
 type UniformTilesetJSON struct {
 	Path string `json:"image"`
-	Gid  int
 }
 
 type UniformTileset struct {
@@ -32,13 +31,15 @@ func (u *UniformTileset) Img(id int) *ebiten.Image {
 	srcY := id / 22 * 16
 
 	return u.img.SubImage(
-		image.Rect(srcX, srcY, srcX+16, srcY+16),
+		image.Rect(
+			srcX, srcY, srcX+16, srcY+16,
+		),
 	).(*ebiten.Image)
 }
 
 type TileJSON struct {
 	Id     int    `json:"id"`
-	Path   string `json:"jasion:image"`
+	Path   string `json:"image"`
 	Width  int    `json:"imagewidth"`
 	Height int    `json:"imageheight"`
 }
