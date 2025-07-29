@@ -3,27 +3,30 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "spawn.json",
     "expandedProjectPaths": [
-        ".",
-        "tilesets"
+        "tilesets",
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "TilesetFloor.json": {
+            "scaleInDock": 1
+        },
         "spawn.json": {
-            "scale": 1.93,
-            "selectedLayer": 0,
+            "scale": 1.5297,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 252.59067357512959,
-                "y": 167.35751295336792
+                "x": 240.24318493822315,
+                "y": 159.50840033993592
             }
         },
         "spawn.tmj": {
-            "scale": 0.2173125,
+            "scale": 0.21,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 800.6902502157034,
-                "y": -73.62668967500713
+                "x": 802.3809523809523,
+                "y": -71.42857142857133
             }
         },
         "tilesets/TilesetFloor.json": {
@@ -47,11 +50,11 @@
             "scaleInEditor": 1
         },
         "tilesets/spawn.json": {
-            "scale": 1.4906,
-            "selectedLayer": 0,
+            "scale": 1.49,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 293.50597075003355,
-                "y": 238.8300013417416
+                "x": 800.3355704697988,
+                "y": 534.2281879194632
             }
         },
         "tilesets/spawn.tmj": {
@@ -63,6 +66,7 @@
             }
         }
     },
+    "last.externalTilesetPath": "/Users/yxleong/Documents/github-repository/rpg/assets/maps/tilesets",
     "last.imagePath": "/Users/yxleong/Documents/github-repository/rpg/assets/images/buildings",
     "map.height": 80,
     "map.lastUsedFormat": "json",
@@ -70,16 +74,20 @@
     "map.tileWidth": 16,
     "map.width": 100,
     "openFiles": [
+        "tilesets/buildings.json",
+        "tilesets/TilesetFloor.json",
+        "spawn.json"
     ],
     "project": "rpg.tiled-project",
     "recentFiles": [
+        "tilesets/buildings.json",
+        "tilesets/TilesetFloor.json",
+        "spawn.json",
+        "tilesets/spawn.json",
+        "spawn.tmj",
         "tilesets/TilesetFloor.tsx",
         "tilesets/buildings.tsj",
-        "tilesets/spawn.tmj",
-        "tilesets/TilesetFloor.json",
-        "tilesets/buildings.json",
-        "spawn.json",
-        "spawn.tmj"
+        "tilesets/spawn.tmj"
     ],
     "tileset.lastUsedFormat": "json",
     "tileset.tileSize": {
