@@ -22,6 +22,7 @@ import (
 )
 
 type GameScene struct {
+	loaded            bool
 	player            *entities.Player
 	playerSpriteSheet *spritesheet.Spritesheet
 	enemies           []*entities.Enemy
@@ -44,10 +45,22 @@ func NewGameScene() *GameScene {
 		tilemapImage:      nil,
 		cam:               nil,
 		colliders:         make([]image.Rectangle, 0),
+		loaded:            false,
 	}
 }
 
+func (g *GameScene) IsLoaded() bool {
+	return g.loaded
+}
+
 func (g *GameScene) Update() SceneId {
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+		return ExitSceneId
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		return PauseSceneId
+	}
+
 	g.player.Dx, g.player.Dy = 0, 0
 
 	// fixed speed
@@ -176,8 +189,8 @@ func (g *GameScene) Update() SceneId {
 
 	g.cam.FollowsPlayer(g.player.X+8, g.player.Y+8, 320, 240)
 	g.cam.Constrain(
-		float64(g.tilemapJSON.Layers[0].Width).constants.Tilesize,
-		float64(g.tilemapJSON.Layers[0].Height).canstants.Tilesize,
+		float64(g.tilemapJSON.Layers[0].Width)*constants.Tilesize,
+		float64(g.tilemapJSON.Layers[0].Height)*constants.Tilesize,
 		320,
 		240,
 	)
@@ -301,7 +314,7 @@ func (g *GameScene) FirstLoad() {
 		log.Fatal(err)
 	}
 
-	tilemapJSON, err := NewTilemapJSON("assets/maps/spawn.json")
+	tilemapJSON, err := tilemap.NewTilemapJSON("assets/maps/spawn.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -369,14 +382,49 @@ func (g *GameScene) FirstLoad() {
 			AmtHeal: 1.0,
 		},
 	}
+	g.loaded = true
 }
 
 func (g *GameScene) OnEnter() {
-	// Logic to execute when entering the scene
 }
 
 func (g *GameScene) OnExit() {
-	// Logic to execute when exiting the scene
 }
 
 var _ Scene = (*GameScene)(nil)
+
+func CheckCollisionHorizontal(sprite *entities.Sprite, colliders []image.Rectangle) {
+	for _, collider := range colliders {
+		if collider.Overlaps(
+			image.Rect(
+				int(sprite.X),
+				int(sprite.Y),
+				int(sprite.X)+16,
+				int(sprite.Y)+16),
+		) {
+			if sprite.Dx > 0.0 {
+				sprite.X = float64(collider.Min.X) - 16.0
+			} else if sprite.Dx < 0.0 {
+				sprite.X = float64(collider.Max.X)
+			}
+		}
+	}
+}
+
+func CheckCollisionVertical(sprite *entities.Sprite, colliders []image.Rectangle) {
+	for _, collider := range colliders {
+		if collider.Overlaps(
+			image.Rect(
+				int(sprite.X),
+				int(sprite.Y),
+				int(sprite.X)+16,
+				int(sprite.Y)+16),
+		) {
+			if sprite.Dy > 0.0 {
+				sprite.Y = float64(collider.Min.Y) - 16.0
+			} else if sprite.Dy < 0.0 {
+				sprite.Y = float64(collider.Max.Y)
+			}
+		}
+	}
+}

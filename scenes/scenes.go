@@ -5,8 +5,10 @@ import "github.com/hajimehoshi/ebiten/v2"
 type SceneId uint
 
 const (
-	GameScenes SceneId = iota
+	GameSceneId SceneId = iota
 	StartSceneId
+	PauseSceneId
+	ExitSceneId
 )
 
 type Scene interface {
@@ -15,4 +17,5 @@ type Scene interface {
 	FirstLoad()
 	OnEnter()
 	OnExit()
+	IsLoaded() bool
 }
