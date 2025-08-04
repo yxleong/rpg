@@ -12,7 +12,7 @@ const (
 )
 
 type Scene interface {
-	Update()
+	Update() SceneId
 	Draw(screen *ebiten.Image)
 	FirstLoad()
 	OnEnter()
