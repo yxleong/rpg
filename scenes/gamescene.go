@@ -24,7 +24,7 @@ import (
 type GameScene struct {
 	loaded            bool
 	player            *entities.Player
-	playerSpriteSheet *spritesheet.Spritesheet
+	playerSpriteSheet *spritesheet.SpriteSheet
 	enemies           []*entities.Enemy
 	potions           []*entities.Potion
 	tilemapJSON       *tilemap.TilemapJSON
