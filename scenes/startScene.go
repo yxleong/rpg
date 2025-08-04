@@ -26,8 +26,8 @@ func (s *StartScene) Update() SceneId {
 }
 
 func (s *StartScene) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{255, 0, 0, 255})
-	ebitenutil.DebugPrint(screen, "Welcome to the RPG Game!\nPress any key to start.")
+	screen.Fill(color.RGBA{172, 187, 58, 0})
+	ebitenutil.DebugPrint(screen, "Welcome to the RPG Game!\nPress enter to start.")
 }
 
 func (s *StartScene) FirstLoad() {

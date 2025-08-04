@@ -183,14 +183,14 @@ func (g *GameScene) FirstLoad() {
 			X:   50.0,
 			Y:   50.0,
 		},
-		Health: 3,
+		Health: 5,
 		Animations: map[entities.PlayerState]*animations.Animation{
 			entities.Up:    animations.NewAnimation(5, 13, 4, 20.0),
 			entities.Down:  animations.NewAnimation(4, 12, 4, 20.0),
 			entities.Left:  animations.NewAnimation(6, 14, 4, 20.0),
 			entities.Right: animations.NewAnimation(7, 15, 4, 20.0),
 		},
-		CombatComp: components.NewBasicCombat(3, 1),
+		CombatComp: components.NewBasicCombat(5, 1),
 	}
 
 	g.playerSpriteSheet = playerSpriteSheet
@@ -209,7 +209,7 @@ func (g *GameScene) FirstLoad() {
 			Sprite: &entities.Sprite{
 				Img: skeletonImage,
 				X:   150.0,
-				Y:   50.0,
+				Y:   170.0,
 			},
 			FollowsPlayer: false,
 			CombatComp:    components.NewEnemyCombat(3, 1, 30),
@@ -339,6 +339,7 @@ func (g *GameScene) Update() SceneId {
 				if g.player.CombatComp.Health() <= 0 {
 					fmt.Println("Player has been defeated")
 					g.player.Health = 0
+					return ExitSceneId
 				} else {
 					fmt.Printf("Player Health: %d\n", g.player.CombatComp.Health())
 				}

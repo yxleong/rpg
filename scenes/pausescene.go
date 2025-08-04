@@ -26,8 +26,8 @@ func (s *PauseScene) Update() SceneId {
 }
 
 func (s *PauseScene) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{0, 255, 0, 255})
-	ebitenutil.DebugPrint(screen, "Press enter to unpause.")
+	screen.Fill(color.RGBA{117, 152, 146, 0})
+	ebitenutil.DebugPrint(screen, "Press enter to unpause.\nPress Q to exit.")
 }
 
 func (s *PauseScene) FirstLoad() {
