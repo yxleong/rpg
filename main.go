@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"log"
-	"rpg-go/animations"
 	"rpg-go/entities"
-	"rpg-go/spritesheet"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
@@ -48,93 +44,6 @@ func CheckCollisionVertical(sprite *entities.Sprite, colliders []image.Rectangle
 			}
 		}
 	}
-}
-
-type Game struct {
-	player                 *entities.Player
-	playerSpriteSheet      *spritesheet.Spritesheet
-	playerRunningAnimation *animations.Animation
-	enemies                []*entities.Enemy
-	potions                []*entities.Potion
-	tilemapJSON            *TilemapJSON
-	tilesets               []Tileset
-	tilemapImage           *ebiten.Image
-	cam                    *Camera
-	colliders              []image.Rectangle
-}
-
-func (g *Game) Update() error {
-
-	g.player.Dx, g.player.Dy = 0, 0
-
-	// fixed speed
-	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		g.player.Dx = 2
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		g.player.Dx = -2
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		g.player.Dy = -2
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		g.player.Dy = 2
-	}
-
-	g.player.X += g.player.Dx
-
-	CheckCollisionHorizontal(g.player.Sprite, g.colliders)
-
-	g.player.Y += g.player.Dy
-
-	CheckCollisionVertical(g.player.Sprite, g.colliders)
-
-	activeAnim := g.player.ActiveAnimation(int(g.player.Dx), int(g.player.Dy))
-	if activeAnim != nil {
-		activeAnim.Update()
-	}
-
-	for _, sprite := range g.enemies {
-
-		sprite.Dx, sprite.Dy = 0.0, 0.0
-
-		// accelerate: gradual speed
-		if sprite.FollowsPlayer {
-			if sprite.X < g.player.X {
-				sprite.Dx += 1
-			} else if sprite.X > g.player.X {
-				sprite.Dx -= 1
-			}
-			if sprite.Y < g.player.Y {
-				sprite.Dy += 1
-			} else if sprite.Y > g.player.Y {
-				sprite.Dy -= 1
-			}
-		}
-
-		sprite.X += sprite.Dx
-		CheckCollisionHorizontal(sprite.Sprite, g.colliders)
-
-		sprite.Y += sprite.Dy
-		CheckCollisionVertical(sprite.Sprite, g.colliders)
-	}
-
-	for _, potion := range g.potions {
-		if g.player.X > potion.X {
-			g.player.Health += potion.AmtHeal
-			fmt.Printf("Picked up potion! Health: %d\n", g.player.Health)
-		}
-	}
-
-	g.cam.FollowsPlayer(g.player.X+8, g.player.Y+8, 320, 240)
-	g.cam.Constrain(
-		float64(g.tilemapJSON.Layers[0].Width)*16.0,
-		float64(g.tilemapJSON.Layers[0].Height)*16.0,
-		320,
-		240,
-	)
-
-	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -241,92 +150,9 @@ func main() {
 	ebiten.SetWindowTitle("Hello, World")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	playerImage, _, err := ebitenutil.NewImageFromFile("assets/images/ninja.png")
-	if err != nil {
-		log.Fatal(err)
-	}
+	game := NewGame()
 
-	skeletonImage, _, err := ebitenutil.NewImageFromFile("assets/images/skeleton.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	potionImage, _, err := ebitenutil.NewImageFromFile("assets/images/potion.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tilemapImage, _, err := ebitenutil.NewImageFromFile("assets/images/TilesetFloor.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tilemapJSON, err := NewTilemapJSON("assets/maps/spawn.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tilesets, err := tilemapJSON.GenTilesets()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	playerSpriteSheet := spritesheet.NewSpriteSheet(4, 7, 16)
-
-	game := Game{
-		player: &entities.Player{
-			Sprite: &entities.Sprite{
-				Img: playerImage,
-				X:   50.0,
-				Y:   50.0,
-			},
-			Health: 3,
-			Animations: map[entities.PlayerState]*animations.Animation{
-				entities.Up:    animations.NewAnimation(5, 13, 4, 20.0),
-				entities.Down:  animations.NewAnimation(4, 12, 4, 20),
-				entities.Left:  animations.NewAnimation(6, 14, 4, 20.0),
-				entities.Right: animations.NewAnimation(7, 15, 4, 20.0),
-			},
-		},
-		playerSpriteSheet: playerSpriteSheet,
-		enemies: []*entities.Enemy{
-			{
-				Sprite: &entities.Sprite{
-					Img: skeletonImage,
-					X:   100.0,
-					Y:   100.0,
-				},
-				FollowsPlayer: true,
-			},
-			{
-				Sprite: &entities.Sprite{
-					Img: skeletonImage,
-					X:   150.0,
-					Y:   150.0,
-				},
-				FollowsPlayer: false,
-			},
-		},
-		potions: []*entities.Potion{
-			{
-				Sprite: &entities.Sprite{
-					Img: potionImage,
-					X:   210.0,
-					Y:   100.0,
-				},
-				AmtHeal: 1.0,
-			},
-		},
-		tilemapJSON:  tilemapJSON,
-		tilemapImage: tilemapImage,
-		tilesets:     tilesets,
-		cam:          NewCamera(0.0, 0.0),
-		colliders: []image.Rectangle{
-			image.Rect(100, 100, 116, 116),
-		},
-	}
-
-	if err := ebiten.RunGame(&game); err != nil {
+	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
 }
