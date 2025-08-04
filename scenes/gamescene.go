@@ -49,8 +49,197 @@ func NewGameScene() *GameScene {
 	}
 }
 
-func (g *GameScene) IsLoaded() bool {
-	return g.loaded
+func (g *GameScene) Draw(screen *ebiten.Image) {
+
+	screen.Fill(color.RGBA{120, 180, 255, 255})
+
+	opts := ebiten.DrawImageOptions{}
+
+	for layerIndex, layer := range g.tilemapJSON.Layers {
+		for index, id := range layer.Data {
+
+			if id == 0 {
+				continue
+			}
+
+			x := (index % layer.Width) * constants.Tilesize
+			y := (index / layer.Width) * constants.Tilesize
+
+			img := g.tilesets[layerIndex].Img(id)
+
+			// 		srcX := (id - 1) % 22 * 16
+			// 		srcY := (id - 1) / 22 * 16
+
+			opts.GeoM.Translate(float64(x), float64(y))
+
+			opts.GeoM.Translate(0.0, -(float64(img.Bounds().Dy()) + constants.Tilesize))
+
+			opts.GeoM.Translate(g.cam.X, g.cam.Y)
+
+			screen.DrawImage(img, &opts)
+
+			// 		screen.DrawImage(
+			// 			g.tilemapImage.SubImage(image.Rect(srcX, srcY, srcX+16, srcY+16)).(*ebiten.Image),
+			// 			&opts,
+			// 		)
+			opts.GeoM.Reset()
+		}
+	}
+
+	opts.GeoM.Translate(g.player.X, g.player.Y)
+	opts.GeoM.Translate(g.cam.X, g.cam.Y)
+
+	playerFrame := 0
+	activeAnim := g.player.ActiveAnimation(int(g.player.Dx), int(g.player.Dy))
+	if activeAnim != nil {
+		playerFrame = activeAnim.Frame()
+	}
+
+	screen.DrawImage(
+		g.player.Img.SubImage(
+			g.playerSpriteSheet.Rect(playerFrame),
+		).(*ebiten.Image),
+		&opts,
+	)
+
+	opts.GeoM.Reset()
+
+	for _, sprite := range g.enemies {
+		opts.GeoM.Translate(sprite.X, sprite.Y)
+		opts.GeoM.Translate(g.cam.X, g.cam.Y)
+		screen.DrawImage(
+			sprite.Img.SubImage(
+				image.Rect(0, 0, constants.Tilesize, constants.Tilesize),
+			).(*ebiten.Image),
+			&opts,
+		)
+		opts.GeoM.Reset()
+	}
+
+	opts.GeoM.Reset()
+
+	for _, sprite := range g.potions {
+		opts.GeoM.Translate(sprite.X, sprite.Y)
+		opts.GeoM.Translate(g.cam.X, g.cam.Y)
+		screen.DrawImage(
+			sprite.Img.SubImage(
+				image.Rect(0, 0, constants.Tilesize, constants.Tilesize),
+			).(*ebiten.Image),
+			&opts,
+		)
+		opts.GeoM.Reset()
+	}
+
+	for _, collider := range g.colliders {
+		vector.StrokeRect(
+			screen,
+			float32(collider.Min.X)+float32(g.cam.X),
+			float32(collider.Min.Y)+float32(g.cam.Y),
+			float32(collider.Dx()),
+			float32(collider.Dy()),
+			1.0,
+			color.RGBA{255, 0, 0, 255},
+			true,
+		)
+	}
+}
+
+func (g *GameScene) FirstLoad() {
+	playerImage, _, err := ebitenutil.NewImageFromFile("assets/images/ninja.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	skeletonImage, _, err := ebitenutil.NewImageFromFile("assets/images/skeleton.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	potionImage, _, err := ebitenutil.NewImageFromFile("assets/images/potion.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tilemapImage, _, err := ebitenutil.NewImageFromFile("assets/images/TilesetFloor.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tilemapJSON, err := tilemap.NewTilemapJSON("assets/maps/spawn.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tilesets, err := tilemapJSON.GenTilesets()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	playerSpriteSheet := spritesheet.NewSpriteSheet(4, 7, constants.Tilesize)
+
+	g.player = &entities.Player{
+		Sprite: &entities.Sprite{
+			Img: playerImage,
+			X:   50.0,
+			Y:   50.0,
+		},
+		Health: 3,
+		Animations: map[entities.PlayerState]*animations.Animation{
+			entities.Up:    animations.NewAnimation(5, 13, 4, 20.0),
+			entities.Down:  animations.NewAnimation(4, 12, 4, 20.0),
+			entities.Left:  animations.NewAnimation(6, 14, 4, 20.0),
+			entities.Right: animations.NewAnimation(7, 15, 4, 20.0),
+		},
+		CombatComp: components.NewBasicCombat(3, 1),
+	}
+
+	g.playerSpriteSheet = playerSpriteSheet
+
+	g.enemies = []*entities.Enemy{
+		{
+			Sprite: &entities.Sprite{
+				Img: skeletonImage,
+				X:   100.0,
+				Y:   100.0,
+			},
+			FollowsPlayer: true,
+			CombatComp:    components.NewEnemyCombat(3, 1, 30),
+		},
+		{
+			Sprite: &entities.Sprite{
+				Img: skeletonImage,
+				X:   150.0,
+				Y:   50.0,
+			},
+			FollowsPlayer: false,
+			CombatComp:    components.NewEnemyCombat(3, 1, 30),
+		},
+	}
+
+	g.tilemapJSON = tilemapJSON
+	g.tilemapImage = tilemapImage
+	g.tilesets = tilesets
+	g.cam = camera.NewCamera(0.0, 0.0)
+	g.colliders = []image.Rectangle{
+		image.Rect(100, 100, 116, 116),
+	}
+	g.potions = []*entities.Potion{
+		{
+			Sprite: &entities.Sprite{
+				Img: potionImage,
+				X:   210.0,
+				Y:   100.0,
+			},
+			AmtHeal: 1.0,
+		},
+	}
+	g.loaded = true
+}
+
+func (g *GameScene) OnEnter() {
+}
+
+func (g *GameScene) OnExit() {
 }
 
 func (g *GameScene) Update() SceneId {
@@ -198,197 +387,8 @@ func (g *GameScene) Update() SceneId {
 	return GameSceneId
 }
 
-func (g *GameScene) Draw(screen *ebiten.Image) {
-
-	screen.Fill(color.RGBA{120, 180, 255, 255})
-
-	opts := ebiten.DrawImageOptions{}
-
-	for layerIndex, layer := range g.tilemapJSON.Layers {
-		for index, id := range layer.Data {
-
-			if id == 0 {
-				continue
-			}
-
-			x := (index % layer.Width) * 16
-			y := (index / layer.Width) * 16
-
-			img := g.tilesets[layerIndex].Img(id)
-
-			// 		srcX := (id - 1) % 22 * 16
-			// 		srcY := (id - 1) / 22 * 16
-
-			opts.GeoM.Translate(float64(x), float64(y))
-
-			opts.GeoM.Translate(0.0, -(float64(img.Bounds().Dy()) + 16))
-
-			opts.GeoM.Translate(g.cam.X, g.cam.Y)
-
-			screen.DrawImage(img, &opts)
-
-			// 		screen.DrawImage(
-			// 			g.tilemapImage.SubImage(image.Rect(srcX, srcY, srcX+16, srcY+16)).(*ebiten.Image),
-			// 			&opts,
-			// 		)
-			opts.GeoM.Reset()
-		}
-	}
-
-	opts.GeoM.Translate(g.player.X, g.player.Y)
-	opts.GeoM.Translate(g.cam.X, g.cam.Y)
-
-	playerFrame := 0
-	activeAnim := g.player.ActiveAnimation(int(g.player.Dx), int(g.player.Dy))
-	if activeAnim != nil {
-		playerFrame = activeAnim.Frame()
-	}
-
-	screen.DrawImage(
-		g.player.Img.SubImage(
-			g.playerSpriteSheet.Rect(playerFrame),
-		).(*ebiten.Image),
-		&opts,
-	)
-
-	opts.GeoM.Reset()
-
-	for _, sprite := range g.enemies {
-		opts.GeoM.Translate(sprite.X, sprite.Y)
-		opts.GeoM.Translate(g.cam.X, g.cam.Y)
-		screen.DrawImage(
-			sprite.Img.SubImage(
-				image.Rect(0, 0, 16, 16),
-			).(*ebiten.Image),
-			&opts,
-		)
-		opts.GeoM.Reset()
-	}
-
-	opts.GeoM.Reset()
-
-	for _, sprite := range g.potions {
-		opts.GeoM.Translate(sprite.X, sprite.Y)
-		opts.GeoM.Translate(g.cam.X, g.cam.Y)
-		screen.DrawImage(
-			sprite.Img.SubImage(
-				image.Rect(0, 0, 16, 16),
-			).(*ebiten.Image),
-			&opts,
-		)
-		opts.GeoM.Reset()
-	}
-
-	for _, collider := range g.colliders {
-		vector.StrokeRect(
-			screen,
-			float32(collider.Min.X)+float32(g.cam.X),
-			float32(collider.Min.Y)+float32(g.cam.Y),
-			float32(collider.Dx()),
-			float32(collider.Dy()),
-			1.0,
-			color.RGBA{255, 0, 0, 255},
-			true,
-		)
-	}
-}
-
-func (g *GameScene) FirstLoad() {
-	playerImage, _, err := ebitenutil.NewImageFromFile("assets/images/ninja.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	skeletonImage, _, err := ebitenutil.NewImageFromFile("assets/images/skeleton.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	potionImage, _, err := ebitenutil.NewImageFromFile("assets/images/potion.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tilemapImage, _, err := ebitenutil.NewImageFromFile("assets/images/TilesetFloor.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tilemapJSON, err := tilemap.NewTilemapJSON("assets/maps/spawn.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tilesets, err := tilemapJSON.GenTilesets()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	playerSpriteSheet := spritesheet.NewSpriteSheet(4, 7, 16)
-
-	g.player = &entities.Player{
-		Sprite: &entities.Sprite{
-			Img: playerImage,
-			X:   50.0,
-			Y:   50.0,
-		},
-		Health: 3,
-		Animations: map[entities.PlayerState]*animations.Animation{
-			entities.Up:    animations.NewAnimation(5, 13, 4, 20.0),
-			entities.Down:  animations.NewAnimation(4, 12, 4, 20),
-			entities.Left:  animations.NewAnimation(6, 14, 4, 20.0),
-			entities.Right: animations.NewAnimation(7, 15, 4, 20.0),
-		},
-		CombatComp: components.NewBasicCombat(3, 1),
-	}
-
-	g.playerSpriteSheet = playerSpriteSheet
-
-	g.enemies = []*entities.Enemy{
-		{
-			Sprite: &entities.Sprite{
-				Img: skeletonImage,
-				X:   100.0,
-				Y:   100.0,
-			},
-			FollowsPlayer: true,
-			CombatComp:    components.NewEnemyCombat(3, 1, 30),
-		},
-		{
-			Sprite: &entities.Sprite{
-				Img: skeletonImage,
-				X:   150.0,
-				Y:   150.0,
-			},
-			FollowsPlayer: false,
-			CombatComp:    components.NewEnemyCombat(3, 1, 30),
-		},
-	}
-
-	g.tilemapJSON = tilemapJSON
-	g.tilemapImage = tilemapImage
-	g.tilesets = tilesets
-	g.cam = camera.NewCamera(0.0, 0.0)
-	g.colliders = []image.Rectangle{
-		image.Rect(100, 100, 116, 116),
-	}
-	g.potions = []*entities.Potion{
-		{
-			Sprite: &entities.Sprite{
-				Img: potionImage,
-				X:   210.0,
-				Y:   100.0,
-			},
-			AmtHeal: 1.0,
-		},
-	}
-	g.loaded = true
-}
-
-func (g *GameScene) OnEnter() {
-}
-
-func (g *GameScene) OnExit() {
+func (g *GameScene) IsLoaded() bool {
+	return g.loaded
 }
 
 var _ Scene = (*GameScene)(nil)
