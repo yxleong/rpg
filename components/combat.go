@@ -5,7 +5,7 @@ type Combat interface {
 	AttackPower() int
 	Attacking() bool
 	Attack() bool
-	Udapte()
+	Update()
 	Damage(amount int)
 }
 
