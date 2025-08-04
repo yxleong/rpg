@@ -17,8 +17,8 @@ func NewGame() *Game {
 		scenes.StartSceneId: scenes.NewStartScene(),
 		scenes.PauseSceneId: scenes.NewPauseScene(),
 	}
-	activeSceneId := scenes.StartSceneId,
-		sceneMap[activeSceneId].FirstLoad()
+	activeSceneId := scenes.StartSceneId
+	sceneMap[activeSceneId].FirstLoad()
 	return &Game{
 		sceneMap:      sceneMap,
 		activeSceneId: activeSceneId,
